@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-deepseek-chat",
-  "version": "1.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "license": "Unlicense",
   "type": "module",
   "description": "DeepSeek Chat panel for the DeepSeek Harness right Sidebar",
   "exports": {
