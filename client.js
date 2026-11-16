@@ -188,11 +188,25 @@ window.__ModuleLoader__.load({
             el.setAttribute('allowpopups', '');
             el.setAttribute('src', 'about:blank#' + reservation.lease);
             el.style.cssText =
-              'display:block;flex:1 1 auto;width:100%;height:100%;border:none;';
+              'display:block;border:none;width:100%;height:100%;';
             el.addEventListener('dom-ready', onDomReady);
             element = el;
-            if (hostRef.current && !cancelled) {
-              hostRef.current.appendChild(el);
+            const host = hostRef.current;
+            if (host && !cancelled) {
+              host.appendChild(el);
+              // Electron webview guest views do not track CSS percentage
+              // sizes; drive explicit pixel dimensions on every resize.
+              const sync = () => {
+                if (!element || !host.isConnected) return;
+                const rect = host.getBoundingClientRect();
+                element.style.width = Math.max(1, Math.floor(rect.width)) + 'px';
+                element.style.height = Math.max(1, Math.floor(rect.height)) + 'px';
+              };
+              sync();
+              requestAnimationFrame(sync);
+              const ro = new ResizeObserver(sync);
+              ro.observe(host);
+              el.__dshResizeObserver = ro;
             }
           } catch (e) {
             if (!cancelled) {
@@ -205,7 +219,12 @@ window.__ModuleLoader__.load({
         return () => {
           cancelled = true;
           if (pollTimer) clearInterval(pollTimer);
-          if (element && element.remove) element.remove();
+          if (element) {
+            if (element.__dshResizeObserver) {
+              try { element.__dshResizeObserver.disconnect(); } catch (e) { /* ignore */ }
+            }
+            if (element.remove) element.remove();
+          }
           element = null;
           if (lease) {
             try { bridge.release(lease); } catch (e) { /* ignore */ }
