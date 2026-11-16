@@ -459,9 +459,9 @@ window.__ModuleLoader__.load({
             guide: [
               {
                 id: 'deepseek-chat',
-                title: 'DeepSeek Chat',
-                description: 'Open chat.deepseek.com beside your session',
                 order: 50,
+                title: () => 'DeepSeek Chat',
+                description: () => 'Open chat.deepseek.com beside your session',
               },
             ],
           });
