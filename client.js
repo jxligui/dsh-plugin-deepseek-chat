@@ -105,9 +105,6 @@ window.__ModuleLoader__.load({
       const setPhase = phaseState[1];
       const errState = React.useState('');
       const errMsg = errState[0];
-      const debugState = React.useState('');
-      const debug = debugState[0];
-      const setDebug = debugState[1];
       const hostRef = React.useRef(null);
 
       React.useEffect(() => {
@@ -139,14 +136,18 @@ window.__ModuleLoader__.load({
               const onChat =
                 data && data.href && data.href.indexOf(CHAT_HOST) !== -1 && !data.error;
               const signedIn = !!(data && data.ls && data.ls.userToken);
-              if (onChat && signedIn) {
-                setPhase(prev => (prev === 'ready' ? prev : 'ready'));
-                writeSnapshot(data);
-              } else if (onChat) {
-                setPhase(prev => (prev === 'ready' ? prev : 'login'));
+              if (onChat) {
+                // Settled: reveal the guest only now to avoid reload flicker.
+                element.style.visibility = 'visible';
+                if (signedIn) {
+                  setPhase(prev => (prev === 'ready' ? prev : 'ready'));
+                  writeSnapshot(data);
+                } else {
+                  setPhase(prev => (prev === 'ready' ? prev : 'login'));
+                }
               }
             } catch (e) { /* guest not ready yet */ }
-          }, 3000);
+          }, 800);
         };
 
         let bootstrapDone = false;
@@ -175,6 +176,10 @@ window.__ModuleLoader__.load({
             } catch (e) { /* fall through to polling */ }
           }
           startPolling();
+          // Safety net: never keep the guest hidden for more than 15 seconds.
+          setTimeout(() => {
+            if (!cancelled && element) element.style.visibility = 'visible';
+          }, 15000);
         };
 
         (async () => {
@@ -191,7 +196,7 @@ window.__ModuleLoader__.load({
             el.setAttribute('allowpopups', '');
             el.setAttribute('src', 'about:blank#' + reservation.lease);
             el.style.cssText =
-              'display:flex;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;border:0;-webkit-app-region:no-drag;';
+              'display:flex;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;border:0;-webkit-app-region:no-drag;visibility:hidden;';
             el.addEventListener('dom-ready', onDomReady);
             element = el;
             const host = hostRef.current;
@@ -202,11 +207,8 @@ window.__ModuleLoader__.load({
               const sync = () => {
                 if (!element || !host.isConnected) return;
                 const r = host.getBoundingClientRect();
-                const e = element.getBoundingClientRect();
                 element.style.width = Math.max(1, Math.floor(r.width)) + 'px';
                 element.style.height = Math.max(1, Math.floor(r.height)) + 'px';
-                setDebug('host ' + Math.round(r.width) + 'x' + Math.round(r.height)
-                  + ' · webview ' + Math.round(e.width) + 'x' + Math.round(e.height));
               };
               sync();
               requestAnimationFrame(sync);
