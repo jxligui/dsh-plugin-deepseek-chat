@@ -104,6 +104,8 @@ window.__ModuleLoader__.load({
         'div',
         {
           style: {
+            position: 'absolute',
+            inset: 0,
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
@@ -155,7 +157,9 @@ window.__ModuleLoader__.load({
               ChatIcon,
             ),
           );
-          const disposeMain = ctx.slots.register({ name: 'main', key: TAB_ID }, Panel);
+          const disposeMain = ctx.slots.inject('main', () =>
+            ctx.slots.register({ name: 'main', key: TAB_ID }, Panel),
+          );
 
           // Right sidebar: a tab type with a guide entry card.
           const disposeType = ctx.sidebarRightTabs.register({
