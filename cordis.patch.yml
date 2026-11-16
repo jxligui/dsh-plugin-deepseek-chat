@@ -1,0 +1,4 @@
+- insert:
+    - id: deepseek-chat
+      name: dsh-plugin-deepseek-chat
+      config: {}
