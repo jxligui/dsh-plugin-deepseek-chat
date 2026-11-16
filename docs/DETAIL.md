@@ -1,6 +1,16 @@
 # DeepSeek Chat 面板
 
-在 DeepSeek Harness 右侧边栏新增 **DeepSeek Chat** 标签页，并贡献一张引导卡片。
+在 DeepSeek Harness 左侧导航新增 **DeepSeek Chat** 入口，并在右侧边栏提供同名标签页。
+
+## 支持的平台
+
+| 平台 | 行为 |
+|---|---|
+| **桌面版 Windows / macOS / Linux**（Electron） | 完整体验：面板通过官方 Browser 租约桥内嵌 `chat.deepseek.com`，登录一次后自动快照，重启应用自动恢复登录态 |
+| **Web GUI**（浏览器访问） | 降级模式：站点 CSP 禁止 iframe 内嵌，面板提供说明与一键外部打开；登录态由浏览器自身存储保持 |
+
+说明：桌面版依赖 Harness 桌面预加载提供的 Browser 租约桥（`dshDesktop.browser`）；
+桥不可用或创建失败时，面板自动降级为"在右侧边栏 Browser 打开 / 系统浏览器打开"。
 
 ## 💰 免费使用，节约成本
 
@@ -17,9 +27,10 @@
 
 ## 行为说明
 
-- **桌面端（Electron 应用）**：面板用 Electron `<webview>` 内嵌
-  `https://chat.deepseek.com/`，使用持久分区 `persist:dsh-deepseek-chat`。
-  Cookie 和 `localStorage` 跨页面刷新、跨应用重启保留 —— 登录一次，长期有效。
+- **桌面端（Electron 应用，Windows/macOS/Linux）**：通过 `window.dshDesktop.browser`
+  租约桥取得 webview 租约后内嵌 `https://chat.deepseek.com/`。租约分区为进程内存态，
+  插件在登录后自动把站点登录态（localStorage + 可读 cookie）快照到应用本地存储，
+  每次启动先注入快照再加载——实现"登录一次，重启不丢"。
 - **Web GUI**：`chat.deepseek.com` 响应头带
   `Content-Security-Policy: frame-ancestors 'none'`，站点自身拒绝 iframe 内嵌，
   任何插件都无法绕过。此时面板显示说明并提供 **Open DeepSeek Chat** 按钮，
@@ -29,11 +40,13 @@
 
 DeepSeek Harness 的账号凭据体系（`dsh-credentials`）保存的是 API-key 形态的
 凭据（`DEEPSEEK_API_KEY` 引用与 `<owner>/<id>` 记录），并非 chat.deepseek.com
-网页版的同源 web token，没有可注入的登录态；持久分区"登录一次"是受支持的路线。
+网页版的同源 web token，没有可注入的登录态；租约内嵌 + 登录态快照是沙箱策略内
+唯一可行的持久化路线。
 
 ## 限制
 
 - Web 端内嵌被站点 CSP 禁止，属于设计上的降级，而非缺陷。
-- 桌面端的下载、原生弹窗等访客权限遵循 Harness Desktop 的 webview 策略；
-  获批准的弹窗会在侧边栏标签页中打开。
-- 标签页声明了 `keepMounted`，切换标签或会话时聊天页面保持存活。
+- 桌面端登录态快照只能覆盖 JS 可读的存储；若站点的关键会话 cookie 为 httpOnly
+  且登录校验强依赖它，重启恢复可能退化为要求重新登录（实测 Windows 下正常）。
+- 桌面端的下载、原生弹窗等访客权限遵循 Harness Desktop 的 webview 策略。
+- 右侧边栏标签声明了 `keepMounted`，切换标签或会话时聊天页面保持存活。

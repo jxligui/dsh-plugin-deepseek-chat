@@ -8,6 +8,18 @@ for usage and [docs/DESIGN.md](docs/DESIGN.md) for the original design document.
 提供面板的客户端插件。用法详见 [docs/DETAIL.md](docs/DETAIL.md)（中文），
 原始设计见 [docs/DESIGN.md](docs/DESIGN.md)。
 
+## Supported platforms / 支持的平台
+
+| Platform | Behavior |
+|---|---|
+| **Desktop Windows / macOS / Linux** (Electron) | Full experience: the panel embeds chat.deepseek.com via the official Browser lease bridge; sign in once and the session is snapshotted and restored across restarts |
+| **Web GUI** (any browser) | Degraded mode: the site's CSP forbids iframes, so the panel offers a notice and a one-click external open; login persistence comes from the browser's own storage |
+
+On macOS the same lease bridge and webview policy apply (platform differences
+in the Harness desktop shell are window-chrome only); if the bridge were
+unavailable, the panel degrades gracefully to the right-Sidebar Browser or the
+system browser. 已在 Windows 桌面版实测；macOS/Linux 桌面版走同一实现路径。
+
 ## Usage
 
 1. **Left sidebar**: click the **DeepSeek Chat** row in the left navigation
@@ -34,7 +46,7 @@ Harness 中需要程序化调用的任务，节约成本。
 |---|---|
 | Panel registration API | `ctx.sidebarRightTabs.register({ id, kind, title, guide, keepMounted })` for the tab type, `ctx.slots.register({ name: 'sidebar.right.pane.tab', key: id }, Body)` for the body, opened via the guide card (`ctx.sidebarRight.openTab(kind)`). Verified against the shipped `@deepseek-ai/dsh-client-ui-sidebar-right` / `-sidebar-browser` / `-sidebar-documentpreview` packages. |
 | Account credential form | API-key shaped: the `@deepseek-ai/dsh-credentials` seam stores `DEEPSEEK_API_KEY`-style references and `<owner>/<id>` records — not the chat site's same-origin web token. Silent token injection (DESIGN.md §3.1) is not possible; the "log in once, persistent partition" route is used. |
-| Embedding carrier | The Web GUI embeds pages via sandboxed iframe; `chat.deepseek.com` sends `CSP: frame-ancestors 'none'` (verified live via HTTP headers), so Web embedding is refused by the site. Desktop (Electron) uses `<webview>`, which is not subject to `frame-ancestors`. |
+| Embedding carrier | The Web GUI embeds pages via sandboxed iframe; `chat.deepseek.com` sends `CSP: frame-ancestors 'none'` (verified live via HTTP headers), so Web embedding is refused by the site. Desktop (Electron) uses a lease-backed `<webview>` (`window.dshDesktop.browser.acquire`), with the site session snapshotted to app-local storage and restored on each launch, since lease partitions are in-memory by policy. |
 
 ## Structure
 

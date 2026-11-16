@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "DeepSeek Chat",
-    "description": "在左侧边栏新增 DeepSeek Chat 入口，并在右侧边栏提供面板：桌面端使用持久分区的 Electron webview 直接内嵌 chat.deepseek.com（登录一次长期有效）；Web 端因站点拒绝 iframe 内嵌，提供一键在浏览器打开的降级入口。使用网页版免费基础服务，日常对话不消耗 API 额度，节约成本。",
+    "description": "左侧导航 DeepSeek Chat 入口 + 右侧边栏面板。桌面版（Windows/macOS/Linux）：内嵌 chat.deepseek.com，登录一次重启不丢；Web 端因站点禁止 iframe，提供一键外部打开。使用网页版免费基础服务，日常对话不消耗 API 额度，节约成本。",
     "detail": "docs/DETAIL.md"
   }
 }
