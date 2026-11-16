@@ -105,6 +105,9 @@ window.__ModuleLoader__.load({
       const setPhase = phaseState[1];
       const errState = React.useState('');
       const errMsg = errState[0];
+      const debugState = React.useState('');
+      const debug = debugState[0];
+      const setDebug = debugState[1];
       const hostRef = React.useRef(null);
 
       React.useEffect(() => {
@@ -188,22 +191,26 @@ window.__ModuleLoader__.load({
             el.setAttribute('allowpopups', '');
             el.setAttribute('src', 'about:blank#' + reservation.lease);
             el.style.cssText =
-              'display:block;border:none;width:100%;height:100%;';
+              'display:flex;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;border:0;-webkit-app-region:no-drag;';
             el.addEventListener('dom-ready', onDomReady);
             element = el;
             const host = hostRef.current;
             if (host && !cancelled) {
               host.appendChild(el);
-              // Electron webview guest views do not track CSS percentage
-              // sizes; drive explicit pixel dimensions on every resize.
+              // Electron webview guest views can misplace their internal view
+              // after late resizes; drive explicit pixel dimensions too.
               const sync = () => {
                 if (!element || !host.isConnected) return;
-                const rect = host.getBoundingClientRect();
-                element.style.width = Math.max(1, Math.floor(rect.width)) + 'px';
-                element.style.height = Math.max(1, Math.floor(rect.height)) + 'px';
+                const r = host.getBoundingClientRect();
+                const e = element.getBoundingClientRect();
+                element.style.width = Math.max(1, Math.floor(r.width)) + 'px';
+                element.style.height = Math.max(1, Math.floor(r.height)) + 'px';
+                setDebug('host ' + Math.round(r.width) + 'x' + Math.round(r.height)
+                  + ' · webview ' + Math.round(e.width) + 'x' + Math.round(e.height));
               };
               sync();
               requestAnimationFrame(sync);
+              setTimeout(sync, 300);
               const ro = new ResizeObserver(sync);
               ro.observe(host);
               el.__dshResizeObserver = ro;
@@ -271,10 +278,10 @@ window.__ModuleLoader__.load({
 
       return h(
         'div',
-        { style: { position: 'relative', flex: '1 1 auto', minHeight: 0 } },
+        { style: { position: 'relative', display: 'flex', flex: '1 1 auto', flexDirection: 'column', height: '100%', minHeight: 0 } },
         h('div', {
           ref: hostRef,
-          style: { position: 'absolute', inset: 0, display: 'flex' },
+          style: { position: 'relative', display: 'flex', flex: '1 1 auto', width: '100%', minHeight: 0 },
         }),
         phase === 'starting'
           ? h(
@@ -292,6 +299,23 @@ window.__ModuleLoader__.load({
                 },
               },
               'Loading DeepSeek Chat… / 正在加载…',
+            )
+          : null,
+        debug
+          ? h(
+              'div',
+              {
+                style: {
+                  position: 'absolute',
+                  left: 8,
+                  bottom: 4,
+                  fontSize: 11,
+                  opacity: 0.55,
+                  pointerEvents: 'none',
+                  fontFamily: 'monospace',
+                },
+              },
+              debug,
             )
           : null,
       );
