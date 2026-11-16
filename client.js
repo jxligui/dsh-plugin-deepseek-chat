@@ -24,6 +24,8 @@ window.__ModuleLoader__.load({
     const isElectron = () =>
       typeof navigator !== 'undefined' && /Electron/i.test(navigator.userAgent || '');
 
+    let pluginCtx = null;
+
     function ElectronEmbed() {
       const state = React.useState('loading');
       const phase = state[0];
@@ -51,46 +53,73 @@ window.__ModuleLoader__.load({
           el.removeEventListener('crashed', fail);
         };
       }, []);
-      return h(
-        'div',
-        { style: { position: 'relative', flex: '1 1 auto', minHeight: 0 } },
-        h(
-          'div',
-          {
-            style: {
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              padding: 24,
-              textAlign: 'center',
-              fontSize: 13,
-              opacity: 0.85,
-              zIndex: 0,
-            },
-          },
-          phase === 'loading'
-            ? 'Loading DeepSeek Chat… / 正在加载 DeepSeek Chat…'
-            : 'The embedded webview did not load. Open the chat in a browser tab instead. / 内嵌 webview 未能加载，请改用浏览器打开。',
-        ),
-        h('webview', {
+      if (phase === 'loaded') {
+        return h('webview', {
           id: 'dsh-deepseek-chat-webview',
           src: CHAT_URL,
           partition: PARTITION,
           allowpopups: 'true',
           style: {
             display: 'block',
-            position: 'absolute',
-            inset: 0,
+            flex: '1 1 auto',
             width: '100%',
             height: '100%',
             border: 'none',
-            zIndex: 1,
           },
-        }),
+        });
+      }
+      const openInBrowser =
+        phase === 'unsupported' || phase === 'failed' || phase === 'loading';
+      return h(
+        'div',
+        {
+          style: {
+            flex: '1 1 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 12,
+            padding: 24,
+            textAlign: 'center',
+            fontSize: 13,
+            opacity: 0.85,
+          },
+        },
+        h(
+          'div',
+          { style: { maxWidth: 420 } },
+          phase === 'loading'
+            ? 'Loading DeepSeek Chat… / 正在加载 DeepSeek Chat…'
+            : 'The desktop app does not grant a webview lease to this plugin. / 桌面端未向本插件授予 webview 租约。',
+        ),
+        openInBrowser &&
+          h(
+            'button',
+            {
+              onClick: () => {
+                try {
+                  (pluginCtx && pluginCtx.sidebarRight
+                    ? pluginCtx.sidebarRight.openTab('browser', {
+                        params: { url: CHAT_URL },
+                      })
+                    : window.open(CHAT_URL, '_blank', 'noopener'));
+                } catch (e) {
+                  window.open(CHAT_URL, '_blank', 'noopener');
+                }
+              },
+              style: {
+                padding: '8px 16px',
+                borderRadius: 10,
+                border: '1px solid var(--dsw-border, rgba(0,0,0,0.15))',
+                background: 'var(--dsw-primary, #4d6bfe)',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: 13,
+              },
+            },
+            'Open in the right-Sidebar Browser / 在右侧边栏 Browser 打开',
+          ),
       );
     }
 
@@ -200,8 +229,9 @@ window.__ModuleLoader__.load({
     }
 
     return {
-      inject: ['sidebarRightTabs', 'slots'],
+      inject: ['sidebarRight', 'sidebarRightTabs', 'slots'],
       apply(ctx) {
+        pluginCtx = ctx;
         ctx.effect(() => {
           // Left sidebar: a global panel entry (row in sidebar.panellist whose
           // id addresses the component registered under the same key in the
