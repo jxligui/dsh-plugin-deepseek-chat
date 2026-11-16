@@ -1,8 +1,23 @@
-# dsh-plugin-deepseek-chat
+# dsh-plugin-deepseek-chat / DeepSeek Chat 面板
 
 A DeepSeek Harness client plugin that adds a **DeepSeek Chat** panel to the
 right Sidebar. See [docs/DETAIL.md](docs/DETAIL.md) for usage and
 [docs/DESIGN.md](docs/DESIGN.md) for the original design document.
+
+一个为 DeepSeek Harness 右侧边栏新增 **DeepSeek Chat** 面板的客户端插件。
+用法详见 [docs/DETAIL.md](docs/DETAIL.md)（中文），原始设计见
+[docs/DESIGN.md](docs/DESIGN.md)。
+
+## 💰 Free basic service / 免费基础服务
+
+The panel loads the chat.deepseek.com web app, whose basic chat service is
+**free to use** — no API quota, no API billing. Use it for everyday Q&A and
+drafting, and save your paid API balance for programmatic work inside the
+Harness.
+
+面板直接加载 chat.deepseek.com 网页版，网页版对话属于 DeepSeek 的**免费基础
+服务**，不消耗 API 额度。日常问答、写草稿走网页版，把付费 API 余额留给
+Harness 中需要程序化调用的任务，节约成本。
 
 ## Verified design decisions
 

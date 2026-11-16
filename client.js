@@ -70,6 +70,12 @@ window.__ModuleLoader__.load({
             'its own login storage keeps you signed in across visits.',
         ),
         h(
+          'div',
+          { style: { maxWidth: 420, opacity: 0.7, fontSize: 12 } },
+          'Uses the chat web app\u2019s free basic service — everyday chats cost no API quota. ' +
+            '\u4f7f\u7528\u7f51\u9875\u7248\u514d\u8d39\u57fa\u7840\u670d\u52a1\uff0c\u65e5\u5e38\u5bf9\u8bdd\u4e0d\u6d88\u8017 API \u989d\u5ea6\u3002',
+        ),
+        h(
           'button',
           {
             onClick: openChat,

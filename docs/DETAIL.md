@@ -1,38 +1,39 @@
-# DeepSeek Chat panel
+# DeepSeek Chat 面板
 
-Adds a **DeepSeek Chat** tab type to the DeepSeek Harness right Sidebar, with a
-guide entry card to open it.
+在 DeepSeek Harness 右侧边栏新增 **DeepSeek Chat** 标签页，并贡献一张引导卡片。
 
-## Behavior
+## 💰 免费使用，节约成本
 
-- **Desktop (Electron):** the tab embeds `https://chat.deepseek.com/` in an
-  Electron `<webview>` backed by the persistent partition
-  `persist:dsh-deepseek-chat`. Cookies and `localStorage` survive page reloads
-  and application restarts, so signing in once keeps you logged in.
-- **Web GUI:** `chat.deepseek.com` answers
-  `Content-Security-Policy: frame-ancestors 'none'`, so the site itself refuses
-  iframe embedding and no plugin can bypass that. The tab then shows a notice
-  and an **Open DeepSeek Chat** button that opens the chat in a normal browser
-  tab, where the site's own login storage keeps you signed in across visits.
+本面板直接加载 **chat.deepseek.com 网页版**。网页版对话使用 DeepSeek 提供的
+**免费基础服务**，不消耗 API 额度、不产生 API 调用费用。日常问答、查资料、
+草拟文案这类轻量需求走网页版即可覆盖，把宝贵的 API 余额留给 Harness 里
+真正需要程序化调用的任务，从而显著节约成本。
 
-## Usage
+## 使用方法
 
-1. Open the right Sidebar (the header's corner button).
-2. Pick the **DeepSeek Chat** card in the guide (or via **More tools**).
-3. Desktop: use the chat inline; sign in once. Web: use the open button.
+1. 打开右侧边栏（会话头部角落的展开按钮）。
+2. 在引导页点击 **DeepSeek Chat** 卡片（也可在 More tools 中找到）。
+3. 桌面端：直接在面板内聊天，登录一次即可；Web 端：点击按钮在新浏览器标签页打开。
 
-## Notes
+## 行为说明
 
-- Why not credential injection? The DeepSeek Harness account seam stores
-  API-key-shaped credentials (`DEEPSEEK_API_KEY` references and
-  `<owner>/<id>` records), not the chat site's same-origin web token, so there
-  is nothing to inject; the persistent-partition route is the supported path.
-- The tab declares `keepMounted`, so the chat stays alive while you switch
-  tabs or sessions.
+- **桌面端（Electron 应用）**：面板用 Electron `<webview>` 内嵌
+  `https://chat.deepseek.com/`，使用持久分区 `persist:dsh-deepseek-chat`。
+  Cookie 和 `localStorage` 跨页面刷新、跨应用重启保留 —— 登录一次，长期有效。
+- **Web GUI**：`chat.deepseek.com` 响应头带
+  `Content-Security-Policy: frame-ancestors 'none'`，站点自身拒绝 iframe 内嵌，
+  任何插件都无法绕过。此时面板显示说明并提供 **Open DeepSeek Chat** 按钮，
+  在普通浏览器标签页打开 —— 网站自身的登录存储同样让你保持登录状态。
 
-## Limitations
+## 为什么不注入凭据？
 
-- Web embedding is impossible by the site's own CSP; the panel degrades to an
-  external-open action there by design.
-- On Desktop, guest permissions (downloads, native popups) follow the
-  Harness Desktop webview policy; approved popups open Sidebar tabs.
+DeepSeek Harness 的账号凭据体系（`dsh-credentials`）保存的是 API-key 形态的
+凭据（`DEEPSEEK_API_KEY` 引用与 `<owner>/<id>` 记录），并非 chat.deepseek.com
+网页版的同源 web token，没有可注入的登录态；持久分区"登录一次"是受支持的路线。
+
+## 限制
+
+- Web 端内嵌被站点 CSP 禁止，属于设计上的降级，而非缺陷。
+- 桌面端的下载、原生弹窗等访客权限遵循 Harness Desktop 的 webview 策略；
+  获批准的弹窗会在侧边栏标签页中打开。
+- 标签页声明了 `keepMounted`，切换标签或会话时聊天页面保持存活。
