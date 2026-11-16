@@ -25,19 +25,73 @@ window.__ModuleLoader__.load({
       typeof navigator !== 'undefined' && /Electron/i.test(navigator.userAgent || '');
 
     function ElectronEmbed() {
-      return h('webview', {
-        src: CHAT_URL,
-        partition: PARTITION,
-        allowpopups: 'true',
-        style: {
-          display: 'block',
-          flex: '1 1 auto',
-          width: '100%',
-          height: '100%',
-          border: 'none',
-          backgroundColor: 'var(--dsw-bg, #ffffff)',
-        },
-      });
+      const state = React.useState('loading');
+      const phase = state[0];
+      const setPhase = state[1];
+      React.useEffect(() => {
+        const el = document.getElementById('dsh-deepseek-chat-webview');
+        if (!el || typeof el.addEventListener !== 'function') {
+          setPhase('unsupported');
+          return undefined;
+        }
+        const ok = () => setPhase('loaded');
+        const fail = () => setPhase('failed');
+        el.addEventListener('dom-ready', ok);
+        el.addEventListener('load-commit', ok);
+        el.addEventListener('did-fail-load', fail);
+        el.addEventListener('crashed', fail);
+        const timer = setTimeout(() => {
+          setPhase(prev => (prev === 'loading' ? 'failed' : prev));
+        }, 10000);
+        return () => {
+          clearTimeout(timer);
+          el.removeEventListener('dom-ready', ok);
+          el.removeEventListener('load-commit', ok);
+          el.removeEventListener('did-fail-load', fail);
+          el.removeEventListener('crashed', fail);
+        };
+      }, []);
+      return h(
+        'div',
+        { style: { position: 'relative', flex: '1 1 auto', minHeight: 0 } },
+        h(
+          'div',
+          {
+            style: {
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              padding: 24,
+              textAlign: 'center',
+              fontSize: 13,
+              opacity: 0.85,
+              zIndex: 0,
+            },
+          },
+          phase === 'loading'
+            ? 'Loading DeepSeek Chat… / 正在加载 DeepSeek Chat…'
+            : 'The embedded webview did not load. Open the chat in a browser tab instead. / 内嵌 webview 未能加载，请改用浏览器打开。',
+        ),
+        h('webview', {
+          id: 'dsh-deepseek-chat-webview',
+          src: CHAT_URL,
+          partition: PARTITION,
+          allowpopups: 'true',
+          style: {
+            display: 'block',
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            border: 'none',
+            zIndex: 1,
+          },
+        }),
+      );
     }
 
     function WebFallback() {
@@ -104,13 +158,14 @@ window.__ModuleLoader__.load({
         'div',
         {
           style: {
-            position: 'absolute',
-            inset: 0,
+            position: 'relative',
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
             height: '100%',
-            minHeight: 0,
+            minHeight: 'calc(100vh - var(--dsh-frame-top-clearance, 48px))',
+            backgroundColor: 'var(--dsw-bg, #ffffff)',
+            color: 'var(--dsw-text, #1a1a1a)',
           },
         },
         isElectron() ? h(ElectronEmbed) : h(WebFallback),
