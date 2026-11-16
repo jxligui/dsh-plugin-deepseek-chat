@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "DeepSeek Chat",
-    "description": "Adds a right-Sidebar panel that embeds chat.deepseek.com: a persistent Electron webview partition on Desktop, and a one-click external-browser fallback on Web where the site refuses iframes. Uses the chat web app's free basic service, so everyday chats cost no API quota.",
+    "description": "Adds a left-sidebar entry and a right-Sidebar panel for chat.deepseek.com: a persistent Electron webview partition on Desktop, and a one-click external-browser fallback on Web where the site refuses iframes. Uses the chat web app's free basic service, so everyday chats cost no API quota.",
     "detail": "docs/DETAIL.md"
   }
 }

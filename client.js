@@ -21,7 +21,6 @@ window.__ModuleLoader__.load({
     const TAB_ID = 'dsh-plugin-deepseek-chat';
     const TAB_KIND = 'deepseek-chat';
     const PARTITION = 'persist:dsh-deepseek-chat';
-
     const isElectron = () =>
       typeof navigator !== 'undefined' && /Electron/i.test(navigator.userAgent || '');
 
@@ -116,10 +115,49 @@ window.__ModuleLoader__.load({
       );
     }
 
+    function ChatIcon() {
+      return h(
+        'span',
+        {
+          style: {
+            display: 'inline-flex',
+            width: 16,
+            height: 16,
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+          'aria-hidden': true,
+        },
+        h(
+          'svg',
+          { viewBox: '0 0 64 64', width: 16, height: 16 },
+          h('circle', { cx: 32, cy: 32, r: 30, fill: '#4d6bfe' }),
+          h('path', {
+            d: 'M20 24a12 10 0 0 1 24 0 12 10 0 0 1-10 9.9V44l-6-5h-2a12 10 0 0 1-6-15z',
+            fill: '#ffffff',
+          }),
+          h('circle', { cx: 27, cy: 25, r: 2, fill: '#4d6bfe' }),
+          h('circle', { cx: 37, cy: 25, r: 2, fill: '#4d6bfe' }),
+        ),
+      );
+    }
+
     return {
       inject: ['sidebarRightTabs', 'slots'],
       apply(ctx) {
         ctx.effect(() => {
+          // Left sidebar: a global panel entry (row in sidebar.panellist whose
+          // id addresses the component registered under the same key in the
+          // layout's root-scoped `main` slot, like the Plugins page).
+          const disposeList = ctx.slots.inject('sidebar.panellist', () =>
+            ctx.slots.register(
+              { name: 'sidebar.panellist', id: TAB_ID, order: 50, label: 'DeepSeek Chat' },
+              ChatIcon,
+            ),
+          );
+          const disposeMain = ctx.slots.register({ name: 'main', key: TAB_ID }, Panel);
+
+          // Right sidebar: a tab type with a guide entry card.
           const disposeType = ctx.sidebarRightTabs.register({
             id: TAB_ID,
             kind: TAB_KIND,
@@ -141,6 +179,8 @@ window.__ModuleLoader__.load({
           );
 
           return () => {
+            disposeMain();
+            disposeList();
             disposeBody();
             disposeType();
           };

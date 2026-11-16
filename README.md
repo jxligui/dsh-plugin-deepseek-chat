@@ -1,12 +1,21 @@
 # dsh-plugin-deepseek-chat / DeepSeek Chat 面板
 
-A DeepSeek Harness client plugin that adds a **DeepSeek Chat** panel to the
-right Sidebar. See [docs/DETAIL.md](docs/DETAIL.md) for usage and
-[docs/DESIGN.md](docs/DESIGN.md) for the original design document.
+A DeepSeek Harness client plugin that adds a **DeepSeek Chat** entry to the
+left navigation and a right-Sidebar panel. See [docs/DETAIL.md](docs/DETAIL.md)
+for usage and [docs/DESIGN.md](docs/DESIGN.md) for the original design document.
 
-一个为 DeepSeek Harness 右侧边栏新增 **DeepSeek Chat** 面板的客户端插件。
-用法详见 [docs/DETAIL.md](docs/DETAIL.md)（中文），原始设计见
-[docs/DESIGN.md](docs/DESIGN.md)。
+一个为 DeepSeek Harness 左侧导航新增 **DeepSeek Chat** 入口、并在右侧边栏
+提供面板的客户端插件。用法详见 [docs/DETAIL.md](docs/DETAIL.md)（中文），
+原始设计见 [docs/DESIGN.md](docs/DESIGN.md)。
+
+## Usage
+
+1. **Left sidebar**: click the **DeepSeek Chat** row in the left navigation
+   (a blue chat-bubble icon when collapsed); the panel opens in the main
+   content area, like the Plugins page.
+2. **Right sidebar** (optional): open the right Sidebar and pick the
+   **DeepSeek Chat** card in the guide.
+3. Desktop: use the chat inline; sign in once. Web: use the open button.
 
 ## 💰 Free basic service / 免费基础服务
 
