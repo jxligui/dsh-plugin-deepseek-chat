@@ -380,12 +380,28 @@ window.__ModuleLoader__.load({
             flexDirection: 'column',
             width: '100%',
             height: '100%',
-            minHeight: 'calc(100vh - var(--dsh-frame-top-clearance, 48px))',
+            minHeight: 0,
             backgroundColor: 'var(--dsw-alias-bg-base, #ffffff)',
             color: 'var(--dsw-alias-label-primary, inherit)',
           },
         },
         isElectron() ? h(ElectronEmbed) : h(WebFallback),
+      );
+    }
+
+    /** Main-panel wrapper: guarantees visible height in the layout's `main` slot. */
+    function MainPanel() {
+      return h(
+        'div',
+        {
+          style: {
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            minHeight: 'calc(100vh - var(--dsh-frame-top-clearance, 48px))',
+          },
+        },
+        h(Panel),
       );
     }
 
@@ -431,7 +447,7 @@ window.__ModuleLoader__.load({
             ),
           );
           const disposeMain = ctx.slots.inject('main', () =>
-            ctx.slots.register({ name: 'main', key: TAB_ID }, Panel),
+            ctx.slots.register({ name: 'main', key: TAB_ID }, MainPanel),
           );
 
           // Right sidebar: a tab type with a guide entry card.
@@ -450,8 +466,11 @@ window.__ModuleLoader__.load({
             ],
           });
 
-          const disposeBody = ctx.slots.inject('sidebar.right.pane.tab', () =>
-            ctx.slots.register({ name: 'sidebar.right.pane.tab', key: TAB_ID }, Panel),
+          // The keyed body seat registers directly per the sidebar-right
+          // contract (the type's id is its key); both stages share this effect.
+          const disposeBody = ctx.slots.register(
+            { name: 'sidebar.right.pane.tab', key: TAB_ID },
+            Panel,
           );
 
           return () => {
