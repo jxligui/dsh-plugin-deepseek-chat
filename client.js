@@ -24,6 +24,7 @@ window.__ModuleLoader__.load({
     const h = React.createElement;
 
     const CHAT_URL = 'https://chat.deepseek.com/';
+    const CHAT_ORIGIN_DOC = 'https://chat.deepseek.com/robots.txt';
     const CHAT_HOST = 'chat.deepseek.com';
     const TAB_ID = 'dsh-plugin-deepseek-chat';
     const TAB_KIND = 'deepseek-chat';
@@ -83,6 +84,10 @@ window.__ModuleLoader__.load({
     };
 
     let pluginCtx = null;
+    // True once a signed-in probe has succeeded in this process: the lease
+    // partition is reused per workspace key, so its cookies stay warm and a
+    // reopen needs a single plain load without the snapshot restore detour.
+    let partitionWarmed = false;
 
     function openExternal() {
       window.open(CHAT_URL, '_blank', 'noopener');
@@ -143,6 +148,7 @@ window.__ModuleLoader__.load({
                 // Settled: drop the cover so the guest appears in one frame.
                 setCovering(false);
                 if (signedIn) {
+                  partitionWarmed = true;
                   setPhase(prev => (prev === 'ready' ? prev : 'ready'));
                   writeSnapshot(data);
                 } else {
@@ -153,30 +159,37 @@ window.__ModuleLoader__.load({
           }, 800);
         };
 
-        let bootstrapDone = false;
-        let restoreAttempted = false;
-        let domReadyCount = 0;
-
+        // Stage machine over guest documents:
+        // 0 bootstrap (about:blank#lease) -> 1 origin doc (inject snapshot)
+        // -> 2 chat page ready -> poll.
+        let stage = 0;
+        const needRestore = !partitionWarmed && !!readSnapshot();
         const onDomReady = async () => {
           if (cancelled || !element) return;
-          domReadyCount += 1;
-          if (!bootstrapDone) {
-            // The first dom-ready belongs to the lease bootstrap document.
-            bootstrapDone = true;
-            setPhase('loading');
-            try { await element.loadURL(CHAT_URL); } catch (e) { /* did-fail-load handles */ }
+          if (stage === 0) {
+            stage = 1;
+            setCovering(true);
+            try {
+              await element.loadURL(needRestore ? CHAT_ORIGIN_DOC : CHAT_URL);
+            } catch (e) { /* did-fail-load handles */ }
             return;
           }
-          const snap = readSnapshot();
-          if (snap && !restoreAttempted) {
-            restoreAttempted = true;
-            try {
-              const result = await element.executeJavaScript(restoreJs(snap), true);
-              if (result === 'ok') {
-                element.reload();
-                return;
+          if (stage === 1) {
+            stage = 2;
+            if (needRestore) {
+              const snap = readSnapshot();
+              if (snap) {
+                try {
+                  const result = await element.executeJavaScript(restoreJs(snap), true);
+                  if (result === 'ok') {
+                    try { await element.loadURL(CHAT_URL); } catch (e) { /* handled */ }
+                    return;
+                  }
+                } catch (e) { /* fall through */ }
               }
-            } catch (e) { /* fall through to polling */ }
+            }
+            try { await element.loadURL(CHAT_URL); } catch (e) { /* handled */ }
+            return;
           }
           startPolling();
           // Safety net: never cover the guest for more than 8 seconds.
