@@ -103,9 +103,8 @@ window.__ModuleLoader__.load({
       const phaseState = React.useState('starting'); // starting|loading|login|ready|unsupported|failed
       const phase = phaseState[0];
       const setPhase = phaseState[1];
-      const noteState = React.useState('');
-      const note = noteState[0];
-      const setNote = noteState[1];
+      const errState = React.useState('');
+      const errMsg = errState[0];
       const hostRef = React.useRef(null);
 
       React.useEffect(() => {
@@ -139,11 +138,7 @@ window.__ModuleLoader__.load({
               const signedIn = !!(data && data.ls && data.ls.userToken);
               if (onChat && signedIn) {
                 setPhase(prev => (prev === 'ready' ? prev : 'ready'));
-                const firstRemembered = !window.localStorage.getItem(SNAPSHOT_KEY);
                 writeSnapshot(data);
-                if (firstRemembered) {
-                  setNote('登录状态已记住，重启后将自动恢复 / Session remembered; it will be restored after a restart.');
-                }
               } else if (onChat) {
                 setPhase(prev => (prev === 'ready' ? prev : 'login'));
               }
@@ -171,7 +166,6 @@ window.__ModuleLoader__.load({
             try {
               const result = await element.executeJavaScript(restoreJs(snap), true);
               if (result === 'ok') {
-                setNote('正在恢复登录状态… / Restoring your session…');
                 element.reload();
                 return;
               }
@@ -202,7 +196,7 @@ window.__ModuleLoader__.load({
             }
           } catch (e) {
             if (!cancelled) {
-              setNote(String((e && e.message) || e));
+              setErrMsg(String((e && e.message) || e));
               setPhase('failed');
             }
           }
@@ -243,7 +237,7 @@ window.__ModuleLoader__.load({
             phase === 'unsupported'
               ? 'The desktop browser bridge is unavailable here. / 当前窗口没有桌面 Browser 桥接。'
               : 'Could not create the embedded guest. / 内嵌 webview 创建失败。',
-            note ? h('div', { style: { fontSize: 12, opacity: 0.7 } }, note) : null,
+            errMsg ? h('div', { style: { fontSize: 12, opacity: 0.7 } }, errMsg) : null,
           ),
           h(
             'button',
@@ -258,22 +252,11 @@ window.__ModuleLoader__.load({
 
       return h(
         'div',
-        { style: { position: 'relative', flex: '1 1 auto', minHeight: 0, display: 'flex', flexDirection: 'column' } },
-        note
-          ? h(
-              'div',
-              { style: { padding: '4px 12px', fontSize: 12, opacity: 0.75, textAlign: 'center' } },
-              note,
-            )
-          : null,
-        phase === 'login'
-          ? h(
-              'div',
-              { style: { padding: '4px 12px', fontSize: 12, textAlign: 'center', opacity: 0.85 } },
-              '首次使用请在页面中登录一次，登录后会自动记住 / Sign in once below; the session is remembered afterwards.',
-            )
-          : null,
-        h('div', { ref: hostRef, style: { flex: '1 1 auto', minHeight: 0, display: 'flex' } }),
+        { style: { position: 'relative', flex: '1 1 auto', minHeight: 0 } },
+        h('div', {
+          ref: hostRef,
+          style: { position: 'absolute', inset: 0, display: 'flex' },
+        }),
         phase === 'starting'
           ? h(
               'div',
