@@ -105,6 +105,9 @@ window.__ModuleLoader__.load({
       const setPhase = phaseState[1];
       const errState = React.useState('');
       const errMsg = errState[0];
+      const coverState = React.useState(true);
+      const covering = coverState[0];
+      const setCovering = coverState[1];
       const hostRef = React.useRef(null);
 
       React.useEffect(() => {
@@ -137,8 +140,8 @@ window.__ModuleLoader__.load({
                 data && data.href && data.href.indexOf(CHAT_HOST) !== -1 && !data.error;
               const signedIn = !!(data && data.ls && data.ls.userToken);
               if (onChat) {
-                // Settled: reveal the guest only now to avoid reload flicker.
-                element.style.visibility = 'visible';
+                // Settled: drop the cover so the guest appears in one frame.
+                setCovering(false);
                 if (signedIn) {
                   setPhase(prev => (prev === 'ready' ? prev : 'ready'));
                   writeSnapshot(data);
@@ -176,10 +179,10 @@ window.__ModuleLoader__.load({
             } catch (e) { /* fall through to polling */ }
           }
           startPolling();
-          // Safety net: never keep the guest hidden for more than 15 seconds.
+          // Safety net: never cover the guest for more than 8 seconds.
           setTimeout(() => {
-            if (!cancelled && element) element.style.visibility = 'visible';
-          }, 15000);
+            if (!cancelled) setCovering(false);
+          }, 8000);
         };
 
         (async () => {
@@ -196,7 +199,7 @@ window.__ModuleLoader__.load({
             el.setAttribute('allowpopups', '');
             el.setAttribute('src', 'about:blank#' + reservation.lease);
             el.style.cssText =
-              'display:flex;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;border:0;-webkit-app-region:no-drag;visibility:hidden;';
+              'display:flex;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;border:0;-webkit-app-region:no-drag;';
             el.addEventListener('dom-ready', onDomReady);
             element = el;
             const host = hostRef.current;
@@ -285,39 +288,23 @@ window.__ModuleLoader__.load({
           ref: hostRef,
           style: { position: 'relative', display: 'flex', flex: '1 1 auto', width: '100%', minHeight: 0 },
         }),
-        phase === 'starting'
+        covering
           ? h(
               'div',
               {
                 style: {
                   position: 'absolute',
                   inset: 0,
+                  zIndex: 2,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: 13,
-                  opacity: 0.7,
-                  pointerEvents: 'none',
+                  backgroundColor: 'var(--dsw-bg, #ffffff)',
+                  color: 'var(--dsw-text, #1a1a1a)',
                 },
               },
               'Loading DeepSeek Chat… / 正在加载…',
-            )
-          : null,
-        debug
-          ? h(
-              'div',
-              {
-                style: {
-                  position: 'absolute',
-                  left: 8,
-                  bottom: 4,
-                  fontSize: 11,
-                  opacity: 0.55,
-                  pointerEvents: 'none',
-                  fontFamily: 'monospace',
-                },
-              },
-              debug,
             )
           : null,
       );
