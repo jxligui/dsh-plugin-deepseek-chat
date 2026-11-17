@@ -1,0 +1,69 @@
+{
+  "format": 1,
+  "title": {
+    "en": "jxligui's DSH plugins",
+    "zh": "jxligui 的 DSH 插件"
+  },
+  "description": {
+    "en": "Community plugins for DeepSeek Harness, installed straight from GitHub.",
+    "zh": "DeepSeek Harness 社区插件，直接从 GitHub 安装。"
+  },
+  "metadata": {
+    "categories": {
+      "productivity": {
+        "title": {
+          "en": "Productivity",
+          "zh": "效率工具"
+        }
+      }
+    },
+    "labels": {},
+    "sortKeys": {}
+  },
+  "plugins": [
+    {
+      "name": "dsh-plugin-deepseek-chat",
+      "title": {
+        "en": "DeepSeek Chat",
+        "zh": "DeepSeek Chat 面板"
+      },
+      "description": {
+        "en": "DeepSeek Chat panel with user-configurable left/right sidebar visibility. Desktop: embedded webview with the session restored across restarts. Uses the chat web app's free basic service.",
+        "zh": "DeepSeek Chat 面板，可在设置中自定义左/右侧栏显示（至少保留一处）。桌面版内嵌 chat.deepseek.com，登录一次重启不丢；网页版免费基础服务，不消耗 API 额度。"
+      },
+      "icon": "https://raw.githubusercontent.com/jxligui/dsh-plugin-deepseek-chat/v0.3.0/icon.svg",
+      "author": "jxligui",
+      "homepage": "https://github.com/jxligui/dsh-plugin-deepseek-chat",
+      "repository": {
+        "url": "https://github.com/jxligui/dsh-plugin-deepseek-chat"
+      },
+      "metadata": {
+        "category": "productivity",
+        "keywords": [
+          "deepseek",
+          "chat",
+          "sidebar",
+          "panel",
+          "对话",
+          "侧边栏"
+        ],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.0",
+          "publishTimestamp": 1794880033,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/jxligui/dsh-plugin-deepseek-chat",
+            "commit": "4af2ffedc2eaf00761597c4fb4054b7135f1fd0e"
+          },
+          "engines": {
+            "dsh": ">=0.2.2-0"
+          }
+        }
+      ]
+    }
+  ]
+}

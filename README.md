@@ -179,3 +179,62 @@ also be updated later with the bundle page's **Update** control.
 then restart the app. 卸载后重启一次应用即可。The visibility setting is stored
 in the profile's `cordis.patch.yml` under the `deepseek-chat` row and is
 removed with the bundle. 显示设置随组合包一并从 profile 移除。
+
+## Publish to the DSH community / 发布到 DSH 社区
+
+**English**
+
+DSH has no central plugin store. Community distribution works through
+**plugin market indexes**: a JSON document (format 1, validated by
+`@deepseek-ai/dsh-plugin-market-index`) that lists installable bundles. This
+repository ships one at [`market/index.json`](market/index.json), listing
+`dsh-plugin-deepseek-chat@0.3.0` from the pinned release commit.
+
+**Share the index URL:**
+
+```text
+https://raw.githubusercontent.com/jxligui/dsh-plugin-deepseek-chat/main/market/index.json
+```
+
+Anyone can then install the plugin from it:
+
+1. Enable the optional **experimental plugin market** bundle
+   (`@deepseek-ai/dsh-experimental-plugin-market-bundle`) in the Plugins page.
+2. Plugins → **Discover** tab → add the index URL above (it is volatile and
+   can be changed anytime in Settings → Plugins).
+3. The **DeepSeek Chat** card appears in Discover with install status and
+   compatibility; install goes through the ordinary Plugins install flow.
+
+**中文**
+
+DSH 没有中央插件商店，社区分发通过**插件索引（plugin market index）**完成：
+一个 JSON 文档（格式 1，由 `@deepseek-ai/dsh-plugin-market-index` 校验），
+列出可安装的组合包。本仓库自带一份索引
+[`market/index.json`](market/index.json)，已收录
+`dsh-plugin-deepseek-chat@0.3.0`（锁定发布 commit）。
+
+**把下面的索引地址分享给社区：**
+
+```text
+https://raw.githubusercontent.com/jxligui/dsh-plugin-deepseek-chat/main/market/index.json
+```
+
+其他人安装步骤：
+
+1. 在插件页启用可选的**实验性插件市场**组合包
+   （`@deepseek-ai/dsh-experimental-plugin-market-bundle`）。
+2. 插件页 → **Discover（发现）** 标签 → 添加上面的索引地址（易变配置，
+   随时可在 设置 → 插件 里修改）。
+3. **DeepSeek Chat** 卡片会出现在 Discover 列表里，带安装状态与兼容性标记，
+   点击后走常规安装流程。
+
+**Releasing a new version / 发布新版本的清单**
+
+1. Bump `package.json` version, commit, tag (`git tag vX.Y.Z`), push with the tag.
+2. Update `market/index.json`: add the new `version`, its commit SHA
+   (`git rev-parse vX.Y.Z`), and `publishTimestamp` (Unix seconds, e.g.
+   `[DateTimeOffset]::new(DateTime.UtcNow).ToUnixTimeSeconds()`).
+3. Commit, push — the raw `main` URL serves the updated index; Discover
+   refreshes it on its cache TTL (10 minutes) or via refresh.
+4. Optionally submit a PR adding the entry to other community-maintained
+   index repositories; DSH reads any http(s) index URL the user configures.
