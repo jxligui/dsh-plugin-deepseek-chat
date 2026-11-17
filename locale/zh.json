@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "DeepSeek Chat",
-    "description": "左侧导航 DeepSeek Chat 入口 + 右侧边栏面板。桌面版（Windows/macOS/Linux）：内嵌 chat.deepseek.com，登录一次重启不丢；Web 端因站点禁止 iframe，提供一键外部打开。使用网页版免费基础服务，日常对话不消耗 API 额度，节约成本。",
+    "description": "左侧导航 DeepSeek Chat 入口 + 右侧边栏面板，并可在插件设置中自定义显示位置（至少保留一处）。桌面版（Windows/macOS/Linux）：内嵌 chat.deepseek.com，登录一次重启不丢；Web 端因站点禁止 iframe，提供一键外部打开。使用网页版免费基础服务，日常对话不消耗 API 额度，节约成本。",
     "detail": "docs/DETAIL.md"
   }
 }

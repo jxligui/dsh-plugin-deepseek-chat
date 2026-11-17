@@ -1,9 +1,12 @@
 {
   "name": "dsh-plugin-deepseek-chat",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "license": "Unlicense",
   "type": "module",
-  "description": "DeepSeek Chat panel for the DeepSeek Harness right Sidebar",
+  "description": "DeepSeek Chat panel for the DeepSeek Harness right Sidebar, with user settings for left/right sidebar visibility",
+  "dependencies": {
+    "@deepseek-ai/schemastery": "*"
+  },
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",

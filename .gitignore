@@ -1,0 +1,4 @@
+node_modules/
+pnpm-lock.yaml
+.dsh-*.out.txt
+.dsh-scan.cjs

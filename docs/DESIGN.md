@@ -28,10 +28,10 @@ https://chat.deepseek.com/ 并使用其基础聊天功能，无需二次登录�
 工厂（plain JS，React 取自浏览器模块表，无构建步骤），与 dsh-doc 装饰模板一致：
 
     dsh-plugin-deepseek-chat/
-    ├── package.json          # dsh.bundle.patch + dsh.client manifest（inject 声明）
+    ├── package.json          # dsh.bundle.patch + dsh.client manifest（inject 声明）+ schemastery 依赖
     ├── cordis.patch.yml      # 插件行：id deepseek-chat
-    ├── index.js              # Host 半（no-op）
-    ├── client.js             # Client 半：左侧入口 + 右侧标签页 + 面板体
+    ├── index.js              # Host 半：volatile Config（showInLeftSidebar/showInRightSidebar）
+    ├── client.js             # Client 半：左/右侧栏入口（配置驱动）+ 设置界面
     ├── locale/en|zh.json     # 插件管理页展示元数据（meta.title/description/detail）
     ├── icon.svg
     ├── README.md
@@ -124,3 +124,29 @@ https://chat.deepseek.com/ 并使用其基础聊天功能，无需二次登录�
   恢复会退化为重新登录（Windows 实测正常）。
 - 桌面端下载/弹窗权限遵循 Harness Desktop webview 策略。
 - 替换已安装包的 client 模块需重启 DSH 才能加载新模块代际。
+
+### 7.7 插件设置：左/右侧栏显示开关（v0.3.0）
+
+用户可在设置里自定义面板的显示位置，且至少保留一处：
+
+- **Host 半**（`index.js`）：`Config` 声明两个 `z.boolean().default(true).volatile()`
+  字段。volatile 字段由 Settings 服务投影为表单、即时生效不重启；普通字段会触发重载。
+  schema 需要依赖 `@deepseek-ai/schemastery`（`*` 即可，已随 profile 顶层解析）。
+- **设置入口**：`ctx.slots.inject('settings.section', …)` 注册独立分区
+  （id `deepseek-chat`，order 60）；同一设置体还注册到
+  `plugins.row.config`（key `<包名>#<行 id>`）作为插件页的 Configure 页。
+  命名空间 = profile 行 id（`deepseek-chat`），读写走 `ctx.get('configForms')`
+  的 `getSnapshot/subscribe/mutate(ops, revision)`；**soft-probe 而非 inject**，
+  设置服务缺失时只禁用编辑器，不影响面板（对齐 opencode-free 的做法）。
+- **保存**：`mutate` 带 `expectedRevision` 防覆盖；被拒（revision 过期）自动用
+  最新 revision 重试一次。
+- **侧栏注册单一持有者**：可见性订阅效果是侧栏注册的唯一所有者——初始按已落盘
+  配置注册（无配置时默认双开），之后每个被接受的快照先卸载再注册恰好可见的入口。
+  ⚠️ 踩坑实测：若默认注册与订阅注册并存（同一 id/键注册两次），会抛错导致
+  **整个 client 插件 fiber 激活失败，连带清理所有注册**（侧栏入口、设置分区全部
+  消失）。所有 effect 都要 try/catch 兜底，一个失败不得拖垮其他贡献。
+- **"至少一处"兜底**：表单禁用最后一个开启的开关；`resolveVisibility` 对
+  "两处都关"的配置按"仅左侧栏"处理。
+- **写链路**（实测确认）：设置页 mutate → `settings` 服务校验 → config editor
+  写入 profile `cordis.patch.yml` → loader 判定 volatile-only 变更就地提交引用 →
+  `settings/document-updated` 事件 → 浏览器端 describe 镜像刷新 → 插件订阅重注册。

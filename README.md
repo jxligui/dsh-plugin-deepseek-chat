@@ -29,6 +29,19 @@ system browser. 已在 Windows 桌面版实测；macOS/Linux 桌面版走同一�
    **DeepSeek Chat** card in the guide.
 3. Desktop: use the chat inline; sign in once. Web: use the open button.
 
+## Settings / 设置
+
+The sidebar-visibility settings live **directly in the Settings window** as its
+own **DeepSeek Chat** section (beside 通用设置 / 模型 / 内置插件). The same panel
+is also available on the Plugins page (DeepSeek Chat card → Configure).
+
+Choose where the panel shows: **left sidebar**, **right sidebar**, or both
+(both on by default). Saves apply live without a restart, and **at least one
+entry always stays visible** — the form disables the last enabled switch, and
+a "both off" config falls back to the left sidebar.
+在 **设置 → DeepSeek Chat** 分区（或插件页 DeepSeek Chat 卡片 → 配置）里可自定义
+左/右侧栏显示，保存即时生效，且至少保留一处显示。
+
 ## 💰 Free basic service / 免费基础服务
 
 The panel loads the chat.deepseek.com web app, whose basic chat service is
@@ -57,10 +70,10 @@ with React taken from the browser module table — no build step, matching the
 `dsh-doc` decoration template.
 
 ```
-package.json        # dsh.bundle.patch + dsh.client manifest
+package.json        # dsh.bundle.patch + dsh.client manifest + schemastery dep
 cordis.patch.yml    # inserts the plugin row
-index.js            # Host half (no-op)
-client.js           # Client half: sidebar tab type + panel body
+index.js            # Host half: volatile Config (showInLeftSidebar/showInRightSidebar)
+client.js           # Client half: config-driven sidebar entries + Plugins row settings page
 locale/en|zh.json   # display metadata for Plugins/Settings
 icon.svg            # plugin icon
 docs/               # DESIGN.md, DETAIL.md

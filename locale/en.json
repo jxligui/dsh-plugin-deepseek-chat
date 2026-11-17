@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "DeepSeek Chat",
-    "description": "Left-sidebar entry and right-Sidebar panel for chat.deepseek.com. Desktop (Windows/macOS/Linux): embedded webview with the session restored across restarts. Web GUI: the site forbids iframes, so a one-click external open is offered. Uses the chat web app's free basic service, so everyday chats cost no API quota.",
+    "description": "Left-sidebar entry and right-Sidebar panel for chat.deepseek.com, with user settings to choose where it shows (at least one stays visible). Desktop (Windows/macOS/Linux): embedded webview with the session restored across restarts. Web GUI: the site forbids iframes, so a one-click external open is offered. Uses the chat web app's free basic service, so everyday chats cost no API quota.",
     "detail": "docs/DETAIL.md"
   }
 }
