@@ -17,7 +17,32 @@
         }
       }
     },
-    "labels": {},
+    "labels": {
+      "dsh-plus": {
+        "title": {
+          "en": "DSH Plus",
+          "zh": "DSH Plus"
+        }
+      },
+      "deepseek-chat": {
+        "title": {
+          "en": "DeepSeek Chat",
+          "zh": "DeepSeek Chat"
+        }
+      },
+      "sidebar-panel": {
+        "title": {
+          "en": "Sidebar Panel",
+          "zh": "侧边栏面板"
+        }
+      },
+      "free-service": {
+        "title": {
+          "en": "Free Service",
+          "zh": "免费服务"
+        }
+      }
+    },
     "sortKeys": {}
   },
   "plugins": [
@@ -44,10 +69,17 @@
           "chat",
           "sidebar",
           "panel",
+          "dsh-plus",
+          "deepseek-harness",
           "对话",
           "侧边栏"
         ],
-        "labels": [],
+        "labels": [
+          "dsh-plus",
+          "deepseek-chat",
+          "sidebar-panel",
+          "free-service"
+        ],
         "sortKeys": {}
       },
       "versions": [
